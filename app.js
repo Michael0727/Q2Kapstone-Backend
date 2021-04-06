@@ -1,0 +1,108 @@
+let express = require("express");
+const moment = require("moment");
+const { nanoid } = require("nanoid");
+let app = express();
+let port = 3000;
+let date = new Date();
+
+app.use(express.json());
+
+let db = {
+  username: [
+    {
+      id: nanoid(),
+      title: "test",
+      details: "testing",
+      dueDate: moment(date).format("MMMM Do, YYYY"),
+      createdAt: moment(date).format("MMMM Do, YYYY"),
+      completed: false,
+      category: "origin",
+      username: "username",
+    },
+  ],
+};
+app.get("/", (req, res) => {
+  res.status(200).json("Welcome to You Can Dos API");
+});
+
+app.get("/main", (req, res) => {
+  res.status(200).send(db.username);
+});
+
+app.get("/main/:id", (req, res) => {
+  let selectedTask = db.username.find((task) => task.id === req.params.id);
+  if (selectedTask) {
+    res.status(200).json(selectedTask);
+  } else {
+    res.status(404).send(`task at ${req.params.id} was not found`);
+  }
+});
+
+app.post("/main", (req, res) => {
+  const task = {
+    id: nanoid(),
+    title: req.body.title,
+    details: req.body.details,
+    dueDate: moment(date).format("MMMM Do, YYYY"),
+    createdAt: moment(date).format("MMMM Do, YYYY"),
+    completed: false,
+    category: "origin",
+    username: "username",
+  };
+  db.username.push(task);
+  res.status(201).json(task);
+});
+
+app.patch("/main/:id", (req, res) => {
+  const selectedTask = db.username.find((task) => {
+    if (task.id === req.params.id) {
+      return true;
+    } else {
+      return false;
+    }
+  });
+  //error handling will go on this line
+  if (req.body.title === "") {
+    return res.status(400).send("Invalid Title");
+  }
+  if (req.body.details === "") {
+    return res.status(400).send("Invalid details");
+  }
+  if (req.body.dueDate === "") {
+    return res.status(400).send("Invalid Due Date");
+  }
+  if (req.body.completed === "") {
+    return res.status(400).send("Invalid completed status");
+  }
+  if (req.body.category === "") {
+    return res.status(400).send("Invalid category");
+  }
+  //error handling ends here
+  selectedTask.title = req.body.title;
+  selectedTask.details = req.body.details;
+  selectedTask.dueDate = req.body.dueDate;
+  selectedTask.completed = req.body.completed;
+  selectedTask.category = req.body.category;
+  res.status(200).json(selectedTask);
+});
+
+app.delete("/main/:id", (req, res) => {
+  const selectedTask = db.username.filter((task) => {
+    if (task.id !== req.params.id) {
+      return true;
+    } else {
+      return false;
+    }
+  });
+  //error handling goes on this line
+  if (selectedTask.length === db.username.length) {
+    res.status(404).send(`${req.params.id} not found`);
+  }
+  //error handling ends here
+  db.username = selectedTask;
+  res.send(db.username);
+});
+
+app.listen(port, () => {
+  console.log("server listening on port " + port);
+});

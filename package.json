@@ -1,0 +1,24 @@
+{
+  "name": "mean-stack",
+  "version": "1.0.0",
+  "description": "express.js mongodb ",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Michael0727/Q2Kapstone-Backend.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Michael0727/Q2Kapstone-Backend/issues"
+  },
+  "homepage": "https://github.com/Michael0727/Q2Kapstone-Backend#readme",
+  "dependencies": {
+    "express": "^4.17.1",
+    "moment": "^2.29.1",
+    "nanoid": "^3.1.22"
+  }
+}
