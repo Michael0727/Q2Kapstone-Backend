@@ -1,11 +1,30 @@
+const userRoutes = require("./controllers/user.controller");
 let express = require("express");
 const moment = require("moment");
 const { nanoid } = require("nanoid");
+const mongoose = require("mongoose");
+const cors = require("cors");
+require("dotenv").config();
+const source = process.env.ATLAS_CONNECTION;
 let app = express();
-let port = 3000;
+const PORT = process.env.PORT || 3000;
 let date = new Date();
 
+app.use(cors());
 app.use(express.json());
+app.use("/users", userRoutes);
+//mongoDB connect
+mongoose.connect(source, {
+  useNewUrlParser: true,
+  useCreateIndex: true,
+  useUnifiedTopology: true,
+});
+
+const connection = mongoose.connection;
+connection.once("open", () => {
+  console.log("DB connected.");
+});
+//end connect code
 
 let db = {
   username: [
@@ -103,6 +122,6 @@ app.delete("/main/:id", (req, res) => {
   res.send(db.username);
 });
 
-app.listen(port, () => {
-  console.log("server listening on port " + port);
+app.listen(PORT, () => {
+  console.log("server listening on port " + PORT);
 });
