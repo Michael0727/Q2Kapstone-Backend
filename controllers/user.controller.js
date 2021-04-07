@@ -19,7 +19,7 @@ router.post(
         errors: errors.array(),
       });
     }
-    //const { username, email, password, age } = req.body;
+    const { username, email, password, age } = req.body;
     try {
       let user = await User.findOne({
         email,
