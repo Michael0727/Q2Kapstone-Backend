@@ -13,7 +13,7 @@ let date = new Date();
 app.use(cors());
 app.use(express.json());
 app.use("/users", userRoutes);
-//mongoDB connect
+//mongoDB connect ---------------------------------------
 mongoose.connect(source, {
   useNewUrlParser: true,
   useCreateIndex: true,
@@ -22,9 +22,9 @@ mongoose.connect(source, {
 
 const connection = mongoose.connection;
 connection.once("open", () => {
-  console.log("DB connected.");
+  console.log("Connection to MongoDB established succefsfully.");
 });
-//end connect code
+//end connect code------------------------------------------
 
 let db = {
   username: [

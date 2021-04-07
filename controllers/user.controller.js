@@ -19,7 +19,7 @@ router.post(
         errors: errors.array(),
       });
     }
-    const { username, email, password } = req.body;
+    //const { username, email, password, age } = req.body;
     try {
       let user = await User.findOne({
         email,
@@ -27,10 +27,12 @@ router.post(
       if (user) {
         return res.status(400).json({ msg: "User Already Exists" });
       }
+
       user = new User({
-        username,
-        email,
-        password,
+        username: req.body.username,
+        email: req.body.email,
+        password: req.body.password,
+        age: req.body.age,
       });
       const salt = await bcrypt.genSalt();
       user.password = await bcrypt.hash(password, salt);
@@ -40,7 +42,7 @@ router.post(
       };
       jwt.sign(payload, "randomString", { expiresIn: 10000 }, (err, token) => {
         if (err) throw err;
-        res.status(200).json({ token });
+        res.status(201).json({ token });
       });
     } catch (err) {
       console.log(err.message);
@@ -78,6 +80,16 @@ router.post(
     }
   }
 );
+
+router.get("/allusers", async (req, res) => {
+  //get all users
+  try {
+    const allusers = await User.find();
+    res.json(allusers);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
 
 // router.route("/allusers").get((req, res) => {
 //   //get all users
