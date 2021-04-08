@@ -38,7 +38,12 @@ router.post(
       user.password = await bcrypt.hash(password, salt);
       await user.save();
       const payload = {
-        user: { id: user.id },
+        user: {
+          id: user.id,
+          username: user.username,
+          email: user.email,
+          tasks: user.tasks,
+        },
       };
       jwt.sign(payload, "randomString", { expiresIn: 10000 }, (err, token) => {
         if (err) throw err;
@@ -68,7 +73,14 @@ router.post(
       if (!user) return res.status(400).json({ message: "User does not exist." });
       const isMatch = await bcrypt.compare(password, user.password);
       if (!isMatch) return res.status(400).json({ message: "Incorrect password" });
-      const payload = { user: { id: user.id } };
+      const payload = {
+        user: {
+          id: user.id,
+          username: user.username,
+          email: user.email,
+          tasks: user.tasks,
+        },
+      };
 
       jwt.sign(payload, "randomString", { expiresIn: 3600 }, (err, token) => {
         if (err) throw err;

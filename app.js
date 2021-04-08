@@ -5,6 +5,7 @@ const moment = require("moment");
 const { nanoid } = require("nanoid");
 const mongoose = require("mongoose");
 const cors = require("cors");
+const User = require("./models/user.model");
 require("dotenv").config();
 const source = process.env.ATLAS_CONNECTION;
 let app = express();
@@ -14,7 +15,7 @@ let date = new Date();
 app.use(cors());
 app.use(express.json());
 app.use("/users", userRoutes);
-app.use("/task", taskRoutes);
+app.use(`/tasks`, taskRoutes);
 //mongoDB connect ---------------------------------------
 mongoose.connect(source, {
   useNewUrlParser: true,
