@@ -34,13 +34,17 @@ router.post("/mytasks", auth, async (req, res) => {
     //   },
     // };
 
-    User.findOneAndUpdate({ _id: req.user.id }, { $push: { tasks: task } }, (error, success) => {
-      if (error) {
-        console.log(error);
-      } else {
-        console.log(task);
+    User.findOneAndUpdate(
+      { _id: req.user.id },
+      { $push: { tasks: task } },
+      (error, success) => {
+        if (error) {
+          console.log(error);
+        } else {
+          console.log(task);
+        }
       }
-    });
+    );
     await task.save();
   } catch (e) {
     console.log(e.message);
@@ -48,6 +52,34 @@ router.post("/mytasks", auth, async (req, res) => {
   }
 });
 //PATCH/update my todos completed/not completed
+// router.patch("/update/:id", auth, async (req, res) => {
+//   console.log(req.user.tasks);
+//   req.user.tasks.findByIdAndUpdate(
+//     req.params.id,
+//     {
+//       title: req.body.username,
+//       details: req.body.details,
+//       dueDate: req.body.dueDate,
+//       category: req.body.category,
+//       completed: false ? false : true,
+//     },
+//     (err, docs) => {
+//       if (err) {
+//         console.error(err);
+//       } else {
+//         console.log(`Updated : ${docs}`);
+//       }
+//     }
+//   );
+// });
+
+router.patch("/update/:id", auth, async (req, res) => {
+  try {
+    console.log(User);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
 //DELETE my todos
 
 module.exports = router;

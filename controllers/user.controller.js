@@ -4,7 +4,8 @@ const express = require("express");
 const { check, validationResult } = require("express-validator");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-
+const auth = require("../middleware/auth");
+//signup new user
 router.post(
   "/signup",
   [
@@ -55,7 +56,7 @@ router.post(
     }
   }
 );
-
+//login user
 router.post(
   "/login",
   [
@@ -70,9 +71,11 @@ router.post(
     const { email, password } = req.body;
     try {
       let user = await User.findOne({ email });
-      if (!user) return res.status(400).json({ message: "User does not exist." });
+      if (!user)
+        return res.status(400).json({ message: "User does not exist." });
       const isMatch = await bcrypt.compare(password, user.password);
-      if (!isMatch) return res.status(400).json({ message: "Incorrect password" });
+      if (!isMatch)
+        return res.status(400).json({ message: "Incorrect password" });
       const payload = {
         user: {
           id: user.id,
@@ -92,7 +95,7 @@ router.post(
     }
   }
 );
-
+//get All Users
 router.get("/allusers", async (req, res) => {
   //get all users
   try {
@@ -103,23 +106,32 @@ router.get("/allusers", async (req, res) => {
   }
 });
 
-// router.route("/allusers").get((req, res) => {
-//   //get all users
-//   User.find()
-//     .then((allUsers) => res.json(allUsers))
-//     .catch((err) => res.status(400).json(`Error! ${err}`));
-// });
-
-// router.route("/delete/:id").delete((req, res) => {
-//   User.deleteOne({ _id: req.params.id })
-//     .then((success) => res.json("Success! User removed."))
-//     .catch((err) => res.status(400).json(`Error! ${err}`));
-// });
-
-// router.route("/update/:id").put((req, res) => {
-//   User.findByIdAndUpdate(req.params.id, req.body)
-//     .then((user) => res.json(`Success! User updated.`))
-//     .catch((err) => res.status(400).json(`Error! ${err}`));
-// });
+//delete users
+router.delete("/delete/:id", auth, async (req, res) => {
+  User.findByIdAndDelete(req.user.id, (err, docs) => {
+    if (err) {
+      console.error(err);
+    } else {
+      console.log(`Deleted : ${docs}`);
+    }
+  });
+});
+//update users
+router.patch("/update/:id", auth, async (req, res) => {
+  User.findByIdAndUpdate(
+    req.user.id,
+    {
+      username: req.body.username,
+      email: req.body.email,
+    },
+    (err, docs) => {
+      if (err) {
+        console.error(err);
+      } else {
+        console.log(`Updated: ${docs}`);
+      }
+    }
+  );
+});
 
 module.exports = router;
