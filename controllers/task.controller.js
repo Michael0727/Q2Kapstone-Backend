@@ -4,6 +4,7 @@ const router = express.Router();
 const jwt = require("jsonwebtoken");
 const auth = require("../middleware/auth");
 const User = require("../models/user.model");
+const { Router } = require("express");
 
 //GET my todos
 router.get("/mytasks", auth, async (req, res) => {
@@ -24,62 +25,127 @@ router.post("/mytasks", auth, async (req, res) => {
       category: req.body.category,
       createdBy: req.user.username,
     });
-    // const payload = {
-    //   task: {
-    //     id: task.id,
-    //     title: task.title,
-    //     details: task.details,
-    //     dueDate: task.dueDate,
-    //     category: task.category,
-    //   },
-    // };
 
-    User.findOneAndUpdate(
-      { _id: req.user.id },
-      { $push: { tasks: task } },
-      (error, success) => {
-        if (error) {
-          console.log(error);
-        } else {
-          console.log(task);
-        }
+    User.findOneAndUpdate({ _id: req.user.id }, { $push: { tasks: task } }, (error, success) => {
+      if (error) {
+        console.log(error);
+      } else {
+        console.log("task");
       }
-    );
+    });
     await task.save();
   } catch (e) {
     console.log(e.message);
     res.status(500).send("Error This sucks");
   }
 });
-//PATCH/update my todos completed/not completed
-// router.patch("/update/:id", auth, async (req, res) => {
-//   console.log(req.user.tasks);
-//   req.user.tasks.findByIdAndUpdate(
-//     req.params.id,
-//     {
-//       title: req.body.username,
-//       details: req.body.details,
-//       dueDate: req.body.dueDate,
-//       category: req.body.category,
-//       completed: false ? false : true,
-//     },
-//     (err, docs) => {
+
+// router.patch("/update/completion/:id", auth, async (req, res) => {
+//   try {
+//     let currentUser = User.findById(req.user.id);
+//     console.log(currentUser);
+//     let toggleTask = await Task.findById(req.params.id);
+//     let currentTask = await Task.findByIdAndUpdate(req.params.id, { completed: !toggleTask.completed }, (err, docs) => {
 //       if (err) {
 //         console.error(err);
 //       } else {
-//         console.log(`Updated : ${docs}`);
+//         console.log(`Updated: ${docs}`);
 //       }
-//     }
-//   );
+//     });
+//     console.log(currentTask);
+//     currentTask = await currentTask.save().then(
+//       (await currentUser).save((err) => {
+//         if (err) {
+//           console.error(err);
+//         } else {
+//           console.log(`Updated ${currentUser}`);
+//         }
+//       })
+//     );
+//   } catch (e) {
+//     console.error(e);
+//     res.status(500).json({ message: "ERROR THIS SUCKS" });
+//   }
 // });
 
-router.patch("/update/:id", auth, async (req, res) => {
+router.patch("/update/completion/:id", auth, async (req, res) => {
+  // const { title, details, dueDate, category, createdBy } = req.body;
   try {
-    console.log(User);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
+    let toggleTask = Task.findById(req.params.id);
+    let currentTask = Task.findByIdAndUpdate(req.params.id, { completed: !toggleTask.completed }, (err, docs) => {
+      if (err) {
+        console.error(err);
+      } else {
+        console.log("task update success", currentTask.completed);
+      }
+    });
+
+    User.findOneAndUpdate({ _id: req.user.id }, { $set: { tasks: task } }, (error, success) => {
+      if (error) {
+        console.log(error);
+      } else {
+        console.log("task");
+      }
+    });
+    await User.save();
+  } catch (e) {
+    console.log(e.message);
+    res.status(500).send("Error This sucks");
   }
 });
+
+//--------------------WHERE MIKE AND I LEFT OFF WHEN WORKING TOGETHER-----------------------------------------------
+
+// router.patch("/update/completion/:id", auth, async (req, res) => {
+//   try {
+//     let currentUser = await User.findById(req.user.id);
+//     let toggleTask = await Task.findById(req.params.id);
+//     let indexOfTask = currentUser.tasks.findIndex((ele) => ele.title === toggleTask.title);
+//     console.log(toggleTask);
+//     let currentTask = await Task.findByIdAndUpdate(req.params.id, { completed: !toggleTask.completed }, (err, docs) => {
+//       if (err) {
+//         console.error(err);
+//       } else {
+//         console.log(`Updated :  ${docs}`);
+//       }
+//     });
+//     User.findOne(currentUser).then((tasks) => {
+//       tasks[indexOfTask] = currentTask;
+//     });
+// User.findByIdAndUpdate(currentUser, { tasks: currentUser.tasks.splice(indexOfTask, 1, currentTask) }, (err, docs) => {
+//   if (err) {
+//     console.error(err);
+//   } else {
+//     console.log(`Updated: ${docs}`);
+//   }
+// });
+//   } catch (e) {
+//     console.error(e);
+//     res.status(500).json({ message: "Server Error" });
+//   }
+// });
+//--------------------WHERE MIKE AND I LEFT OFF WHEN WORKING TOGETHER-----------------------------------------------
+
+// router.patch("/update/task/:id", auth, async (req, res) => {
+//   try {
+//     let currentTask = await Task.findByIdAndUpdate(
+//       req.params.id,
+//       { title: req.body.title, details: req.body.details, dueDate: req.body.dueDate },
+//       (err, docs) => {
+//         if (err) {
+//           console.error(err);
+//         } else {
+//           console.log(docs);
+//         }
+//       }
+//     );
+//     currentTask = await currentTask.save().then((modifiedTask) => res.status(200).send(modifiedTask));
+//   } catch (e) {
+//     console.error(e);
+//     res.status(500).json({ message: "something went wrong" });
+//   }
+// });
+
 //DELETE my todos
 
 module.exports = router;
