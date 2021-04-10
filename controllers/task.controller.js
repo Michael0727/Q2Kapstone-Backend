@@ -31,6 +31,7 @@ router.post("/mytasks", auth, async (req, res) => {
         console.log(error);
       } else {
         console.log("task");
+        res.status(201).send(success);
       }
     });
     await task.save();
@@ -69,30 +70,53 @@ router.post("/mytasks", auth, async (req, res) => {
 // });
 
 router.patch("/update/completion/:id", auth, async (req, res) => {
-  // const { title, details, dueDate, category, createdBy } = req.body;
   try {
-    let toggleTask = Task.findById(req.params.id);
-    let currentTask = Task.findByIdAndUpdate(req.params.id, { completed: !toggleTask.completed }, (err, docs) => {
-      if (err) {
-        console.error(err);
-      } else {
-        console.log("task update success", currentTask.completed);
+    let currentTask = Task.findById(req.params.id);
+    let currentUser = User.findById(req.user.id);
+    console.log((await currentUser).tasks);
+    console.log((await currentTask).completed);
+    await User.findOneAndUpdate(
+      { _id: req.userid, "tasks._id": req.params.id },
+      { $set: { "tasks.$.completed": req.body.completed } },
+      (err, docs) => {
+        if (err) {
+          console.error(err);
+        } else {
+          console.log(`SUCCESS : ${currentUser.tasks} -- ${docs}`);
+        }
       }
-    });
-
-    User.findOneAndUpdate({ _id: req.user.id }, { $set: { tasks: task } }, (error, success) => {
-      if (error) {
-        console.log(error);
-      } else {
-        console.log("task");
-      }
-    });
-    await User.save();
+    );
   } catch (e) {
-    console.log(e.message);
-    res.status(500).send("Error This sucks");
+    console.error(e);
+    res.status(500).send(`Server Error:  ${e}`);
   }
 });
+
+// router.patch("/update/completion/:id", auth, async (req, res) => {
+//   // const { title, details, dueDate, category, createdBy } = req.body;
+//   try {
+//     let toggleTask = Task.findById(req.params.id);
+//     let currentTask = Task.findByIdAndUpdate(req.params.id, { completed: !toggleTask.completed }, (err, docs) => {
+//       if (err) {
+//         console.error(err);
+//       } else {
+//         console.log("task update success", currentTask.completed);
+//       }
+//     });
+
+//     User.findOneAndUpdate({ _id: req.user.id }, { $set: { tasks: task } }, (error, success) => {
+//       if (error) {
+//         console.log(error);
+//       } else {
+//         console.log("task");
+//       }
+//     });
+//     await User.save();
+//   } catch (e) {
+//     console.log(e.message);
+//     res.status(500).send("Error This sucks");
+//   }
+// });
 
 //--------------------WHERE MIKE AND I LEFT OFF WHEN WORKING TOGETHER-----------------------------------------------
 

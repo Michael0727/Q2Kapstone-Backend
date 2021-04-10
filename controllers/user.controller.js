@@ -46,7 +46,7 @@ router.post(
           tasks: user.tasks,
         },
       };
-      jwt.sign(payload, "randomString", { expiresIn: 10000 }, (err, token) => {
+      jwt.sign(payload, "randomString", { expiresIn: "24h" }, (err, token) => {
         if (err) throw err;
         res.status(201).json({ token });
       });
@@ -71,11 +71,9 @@ router.post(
     const { email, password } = req.body;
     try {
       let user = await User.findOne({ email });
-      if (!user)
-        return res.status(400).json({ message: "User does not exist." });
+      if (!user) return res.status(400).json({ message: "User does not exist." });
       const isMatch = await bcrypt.compare(password, user.password);
-      if (!isMatch)
-        return res.status(400).json({ message: "Incorrect password" });
+      if (!isMatch) return res.status(400).json({ message: "Incorrect password" });
       const payload = {
         user: {
           id: user.id,
