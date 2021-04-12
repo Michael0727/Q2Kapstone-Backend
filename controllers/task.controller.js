@@ -41,135 +41,113 @@ router.post("/mytasks", auth, async (req, res) => {
   }
 });
 
-// router.patch("/update/completion/:id", auth, async (req, res) => {
-//   try {
-//     let currentUser = User.findById(req.user.id);
-//     console.log(currentUser);
-//     let toggleTask = await Task.findById(req.params.id);
-//     let currentTask = await Task.findByIdAndUpdate(req.params.id, { completed: !toggleTask.completed }, (err, docs) => {
-//       if (err) {
-//         console.error(err);
-//       } else {
-//         console.log(`Updated: ${docs}`);
-//       }
-//     });
-//     console.log(currentTask);
-//     currentTask = await currentTask.save().then(
-//       (await currentUser).save((err) => {
-//         if (err) {
-//           console.error(err);
-//         } else {
-//           console.log(`Updated ${currentUser}`);
-//         }
-//       })
-//     );
-//   } catch (e) {
-//     console.error(e);
-//     res.status(500).json({ message: "ERROR THIS SUCKS" });
-//   }
-// });
-
 router.patch("/update/completion/:id", auth, async (req, res) => {
   try {
     let currentTask = Task.findById(req.params.id);
-    let currentUser = User.findById(req.user.id);
-    console.log((await currentUser).tasks);
-    console.log((await currentTask).completed);
+    let currentId = (await currentTask)._id;
+    let completionStatus = (await currentTask).completed;
+
+    let task = await Task.findOneAndUpdate(
+      { _id: req.params.id },
+      { $set: { completed: !completionStatus } },
+      { new: true },
+      (err, doc) => {
+        if (err) {
+          console.error(err);
+        } else {
+          console.log(`Updated ${doc}`);
+        }
+      }
+    );
+
     await User.findOneAndUpdate(
-      { _id: req.userid, "tasks._id": req.params.id },
-      { $set: { "tasks.$.completed": req.body.completed } },
+      { _id: req.user.id },
+      { $set: { "tasks.$[el].completed": task.completed } },
+      { arrayFilters: [{ "el._id": currentId }], new: true },
       (err, docs) => {
         if (err) {
           console.error(err);
         } else {
-          console.log(`SUCCESS : ${currentUser.tasks} -- ${docs}`);
+          console.log(`Updated ${docs}`);
+          res.status(200).send(doc);
         }
       }
     );
   } catch (e) {
     console.error(e);
-    res.status(500).send(`Server Error:  ${e}`);
+    res.status(500).json({ message: "ERROR THIS SUCKS" });
   }
 });
 
-// router.patch("/update/completion/:id", auth, async (req, res) => {
-//   // const { title, details, dueDate, category, createdBy } = req.body;
-//   try {
-//     let toggleTask = Task.findById(req.params.id);
-//     let currentTask = Task.findByIdAndUpdate(req.params.id, { completed: !toggleTask.completed }, (err, docs) => {
-//       if (err) {
-//         console.error(err);
-//       } else {
-//         console.log("task update success", currentTask.completed);
-//       }
-//     });
+router.patch("/update/task/:id", auth, async (req, res) => {
+  try {
+    let currentTask = Task.findById(req.params.id);
+    let currentId = (await currentTask)._id;
+    let completionStatus = (await currentTask).completed;
 
-//     User.findOneAndUpdate({ _id: req.user.id }, { $set: { tasks: task } }, (error, success) => {
-//       if (error) {
-//         console.log(error);
-//       } else {
-//         console.log("task");
-//       }
-//     });
-//     await User.save();
-//   } catch (e) {
-//     console.log(e.message);
-//     res.status(500).send("Error This sucks");
-//   }
-// });
-
-//--------------------WHERE MIKE AND I LEFT OFF WHEN WORKING TOGETHER-----------------------------------------------
-
-// router.patch("/update/completion/:id", auth, async (req, res) => {
-//   try {
-//     let currentUser = await User.findById(req.user.id);
-//     let toggleTask = await Task.findById(req.params.id);
-//     let indexOfTask = currentUser.tasks.findIndex((ele) => ele.title === toggleTask.title);
-//     console.log(toggleTask);
-//     let currentTask = await Task.findByIdAndUpdate(req.params.id, { completed: !toggleTask.completed }, (err, docs) => {
-//       if (err) {
-//         console.error(err);
-//       } else {
-//         console.log(`Updated :  ${docs}`);
-//       }
-//     });
-//     User.findOne(currentUser).then((tasks) => {
-//       tasks[indexOfTask] = currentTask;
-//     });
-// User.findByIdAndUpdate(currentUser, { tasks: currentUser.tasks.splice(indexOfTask, 1, currentTask) }, (err, docs) => {
-//   if (err) {
-//     console.error(err);
-//   } else {
-//     console.log(`Updated: ${docs}`);
-//   }
-// });
-//   } catch (e) {
-//     console.error(e);
-//     res.status(500).json({ message: "Server Error" });
-//   }
-// });
-//--------------------WHERE MIKE AND I LEFT OFF WHEN WORKING TOGETHER-----------------------------------------------
-
-// router.patch("/update/task/:id", auth, async (req, res) => {
-//   try {
-//     let currentTask = await Task.findByIdAndUpdate(
-//       req.params.id,
-//       { title: req.body.title, details: req.body.details, dueDate: req.body.dueDate },
-//       (err, docs) => {
-//         if (err) {
-//           console.error(err);
-//         } else {
-//           console.log(docs);
-//         }
-//       }
-//     );
-//     currentTask = await currentTask.save().then((modifiedTask) => res.status(200).send(modifiedTask));
-//   } catch (e) {
-//     console.error(e);
-//     res.status(500).json({ message: "something went wrong" });
-//   }
-// });
+    let task = await Task.findOneAndUpdate(
+      { _id: req.params.id },
+      { $set: { title: req.body.title, details: req.body.details, dueDate: req.body.dueDate } },
+      { new: true },
+      (err, doc) => {
+        if (err) {
+          console.error(err);
+        } else {
+          console.log(`Updated ${doc}`);
+          res.status(200).send(doc);
+        }
+      }
+    );
+    await User.findOneAndUpdate(
+      { _id: req.user.id },
+      {
+        $set: {
+          "tasks.$[el].title": req.body.title,
+          "tasks.$[el].details": req.body.details,
+          "tasks.$[el].dueDate": req.body.dueDate,
+        },
+      },
+      { arrayFilters: [{ "el._id": currentId }], new: true },
+      (err, docs) => {
+        if (err) {
+          console.error(err);
+        } else {
+          console.log(`Updated ${docs}`);
+          res.status(200).send(doc);
+        }
+      }
+    );
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ message: "server error" });
+  }
+});
 
 //DELETE my todos
+router.delete("/delete/:id", auth, async (req, res) => {
+  try {
+    let currentTask = Task.findById(req.params.id);
+    let currentId = (await currentTask)._id;
+    // await console.log(currentId);
+    await User.updateOne({ _id: req.user.id }, { $pull: { tasks: { _id: currentId } } }, (err, docs) => {
+      if (err) {
+        console.error(err);
+      } else {
+        console.log(`Deleted : ${docs}`);
+      }
+    });
+    await Task.findOneAndDelete({ _id: req.params.id }, (err, docs) => {
+      if (err) {
+        console.error(err);
+      } else {
+        console.log(`Deleted : ${docs}`);
+        res.status(200).send(doc);
+      }
+    });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ message: "server error" });
+  }
+});
 
 module.exports = router;

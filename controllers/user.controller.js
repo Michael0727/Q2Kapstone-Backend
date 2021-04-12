@@ -98,7 +98,7 @@ router.get("/allusers", async (req, res) => {
   //get all users
   try {
     const allusers = await User.find();
-    res.json(allusers);
+    res.status(200).json(allusers);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -127,6 +127,7 @@ router.patch("/update/:id", auth, async (req, res) => {
         console.error(err);
       } else {
         console.log(`Updated: ${docs}`);
+        res.status(200).send(doc);
       }
     }
   );
