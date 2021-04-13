@@ -9,7 +9,7 @@ const { Router } = require("express");
 //GET my todos
 router.get("/mytasks", auth, async (req, res) => {
   try {
-    res.json(req.user.tasks);
+    res.status(200).json(req.user.tasks);
   } catch (error) {
     res.status(400).send({ message: "ERROR" });
   }
