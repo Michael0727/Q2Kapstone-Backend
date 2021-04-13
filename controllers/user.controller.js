@@ -20,7 +20,7 @@ router.post(
         errors: errors.array(),
       });
     }
-    const { username, email, password, age } = req.body;
+    const { username, email, password } = req.body;
     try {
       let user = await User.findOne({
         email,
@@ -33,7 +33,6 @@ router.post(
         username: req.body.username,
         email: req.body.email,
         password: req.body.password,
-        age: req.body.age,
       });
       const salt = await bcrypt.genSalt();
       user.password = await bcrypt.hash(password, salt);
@@ -83,7 +82,7 @@ router.post(
         },
       };
 
-      jwt.sign(payload, "randomString", { expiresIn: 3600 }, (err, token) => {
+      jwt.sign(payload, "randomString", { expiresIn: "24h" }, (err, token) => {
         if (err) throw err;
         res.status(200).json({ token });
       });

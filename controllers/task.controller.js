@@ -14,6 +14,16 @@ router.get("/mytasks", auth, async (req, res) => {
     res.status(400).send({ message: "ERROR" });
   }
 });
+
+router.get("/:id", auth, async (req, res) => {
+  try {
+    let task = await Task.findOne({ _id: req.params.id });
+    await res.status(200).json(task);
+  } catch (error) {
+    res.status(500).send({ message: "Server Error" });
+  }
+});
+
 //POST my todos
 router.post("/mytasks", auth, async (req, res) => {
   // const { title, details, dueDate, category, createdBy } = req.body;
