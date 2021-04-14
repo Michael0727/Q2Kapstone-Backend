@@ -79,7 +79,7 @@ router.patch("/update/completion/:id", auth, async (req, res) => {
           console.error(err);
         } else {
           console.log(`Updated ${docs}`);
-          res.status(200).send(doc);
+          res.status(200).send(docs);
         }
       }
     );
@@ -151,7 +151,7 @@ router.delete("/delete/:id", auth, async (req, res) => {
         console.error(err);
       } else {
         console.log(`Deleted : ${docs}`);
-        res.status(200).send(doc);
+        res.status(200).send(docs);
       }
     });
   } catch (e) {
