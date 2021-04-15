@@ -81,10 +81,10 @@ router.post(
           tasks: user.tasks,
         },
       };
-
+      //user: { username: user.username, email: user.email, id: user.id, tasks: user.tasks }
       jwt.sign(payload, "randomString", { expiresIn: "24h" }, (err, token) => {
         if (err) throw err;
-        res.status(200).json({ token, user: { username: user.username, email: user.email, id: user.id, tasks: user.tasks } });
+        res.status(200).json({ token });
       });
     } catch (e) {
       console.error(e);
