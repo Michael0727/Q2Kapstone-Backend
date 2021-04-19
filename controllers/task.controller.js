@@ -9,7 +9,12 @@ const { Router } = require("express");
 //GET my todos
 router.get("/mytasks", auth, async (req, res) => {
   try {
-    res.status(200).json(req.user.tasks);
+    // const user = await User.findById({ _id: req.user._id });
+    const tasks = await Task.find({ user: req.user.id });
+    console.log(req.user.id);
+    // console.log(tasks);
+    // console.log(user);
+    res.status(200).json(tasks);
   } catch (error) {
     res.status(400).send({ message: "ERROR" });
   }
@@ -34,20 +39,22 @@ router.post("/mytasks", auth, async (req, res) => {
       dueDate: req.body.dueDate,
       category: req.body.category,
       createdBy: req.user.username,
+      user: req.body.user,
     });
 
-    User.findOneAndUpdate({ _id: req.user.id }, { $push: { tasks: task } }, (error, success) => {
-      if (error) {
-        console.log(error);
-      } else {
-        console.log("task");
-        res.status(201).send(success);
-      }
-    });
-    await task.save();
+    // User.findOneAndUpdate({ _id: req.user.id }, { $push: { tasks: task } }, (error, success) => {
+    //   if (error) {
+    //     console.log(error);
+    //   } else {
+    //     console.log(task);
+    //     res.status(201).send(success);
+    //   }
+    // });
+    console.log(task);
+    task.save();
   } catch (e) {
     console.log(e.message);
-    res.status(500).send("Error This sucks");
+    res.status(500).send(`Error: ${e.message}`);
   }
 });
 

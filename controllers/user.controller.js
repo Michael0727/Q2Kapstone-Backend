@@ -84,7 +84,7 @@ router.post(
       //user: { username: user.username, email: user.email, id: user.id, tasks: user.tasks }
       jwt.sign(payload, "randomString", { expiresIn: "24h" }, (err, token) => {
         if (err) throw err;
-        res.status(200).json({ token });
+        res.status(200).json({ token, id: user.id });
       });
     } catch (e) {
       console.error(e);

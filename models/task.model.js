@@ -10,6 +10,7 @@ const taskSchema = new Schema(
     completed: { type: Boolean, default: false },
     category: { type: String, required: true },
     createdBy: { type: String, ref: "User" },
+    user: { type: mongoose.Schema.ObjectId, ref: "User", required: [true, "A user is rquired to create Task"] },
   },
   { versionKey: false }
 );
