@@ -51,7 +51,13 @@ router.post("/mytasks", auth, async (req, res) => {
     //   }
     // });
     console.log(task);
-    task.save();
+    task.save((err, success) => {
+      if (err) {
+        console.error(err);
+      } else {
+        res.status(201).send(success);
+      }
+    });
   } catch (e) {
     console.log(e.message);
     res.status(500).send(`Error: ${e.message}`);
